@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Math Quiz Game</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #f3e7e9, #e3eeff);
+      color: #333;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 50px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: #0077cc;
+    }
+
+    button {
+      background-color: #0077cc;
+      color: white;
+      padding: 10px 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #005fa3;
+    }
+
+    .quiz-section, .score-section, .leaderboard-section {
+      display: none;
+    }
+
+    .question {
+      font-size: 1.5rem;
+      margin: 20px 0;
+    }
+
+    .timer {
+      font-size: 1rem;
+      color: red;
+      margin-bottom: 15px;
+    }
+
+    .score-section {
+      font-size: 1.2rem;
+      margin-top: 20px;
+    }
+
+    input[type="number"] {
+      padding: 10px;
+      font-size: 1rem;
+      margin: 10px;
+      width: 100px;
+    }
+
+    .leaderboard {
+      margin-top: 20px;
+      background-color: #f0f8ff;
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .share-buttons {
+      margin-top: 15px;
+    }
+
+    .share-buttons a {
+      margin: 5px;
+      text-decoration: none;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 5px;
+      display: inline-block;
+    }
+
+    .whatsapp { background: #25d366; }
+    .facebook { background: #4267B2; }
+    .instagram { background: #C13584; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Math Quiz Game</h1>
+    <div class="home-section">
+      <p>Test your math skills by solving 10 random questions!</p>
+      <button onclick="startGame('Addition')">Addition</button>
+      <button onclick="startGame('Subtraction')">Subtraction</button>
+      <button onclick="startGame('Multiplication')">Multiplication</button>
+      <button onclick="startGame('Division')">Division</button>
+      <button onclick="showLeaderboard()">View Leaderboard</button>
+    </div>
+
+    <div class="quiz-section">
+      <div class="timer">Time Left: <span id="timer">30</span> seconds</div>
+      <div class="question" id="question"></div>
+      <input type="number" id="answer" placeholder="Your answer" />
+      <button onclick="submitAnswer()">Submit</button>
+    </div>
+
+    <div class="score-section" id="score-section">
+      <p>Your final score: <span id="final-score"></span></p>
+      <input type="text" id="player-name" placeholder="Enter your name" />
+      <button onclick="saveScore()">Save Score</button>
+      <button onclick="restartGame()">Play Again</button>
+      <div class="share-buttons">
+        <a href="#" id="whatsapp-share" target="_blank" class="whatsapp">Share on WhatsApp</a>
+        <a href="#" id="facebook-share" target="_blank" class="facebook">Share on Facebook</a>
+        <a href="#" id="instagram-share" target="_blank" class="instagram">Share on Instagram</a>
+      </div>
+    </div>
+
+    <div class="leaderboard-section" id="leaderboard-section">
+      <h2>Leaderboard</h2>
+      <div class="leaderboard" id="leaderboard"></div>
+      <button onclick="goHome()">Back to Home</button>
+    </div>
+  </div>
+
+  <script>
+    let score = 0;
+    let currentQuestion = 0;
+    let timerInterval;
+    let gameMode = "";
+    const questions = [];
+
+    function startGame(mode) {
+      gameMode = mode;
+      score = 0;
+      currentQuestion = 0;
+      generateQuestions();
+      document.querySelector(".home-section").style.display = "none";
+      document.querySelector(".quiz-section").style.display = "block";
+      startTimer();
+      showQuestion();
+    }
+
+    function startTimer() {
+      let timeLeft = 30;
+      document.getElementById("timer").textContent = timeLeft;
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById("timer").textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          endGame();
+        }
+      }, 1000);
+    }
+
+    function generateQuestions() {
+      questions.length = 0;
+      for (let i = 0; i < 10; i++) {
+        const num1 = Math.floor(Math.random() * 10 + 1);
+        const num2 = Math.floor(Math.random() * 10 + 1);
+        let question, answer;
+
+        switch (gameMode) {
+          case "Addition":
+            question = `${num1} + ${num2}`;
+            answer = num1 + num2;
+            break;
+          case "Subtraction":
+            question = `${Math.max(num1, num2)} - ${Math.min(num1, num2)}`;
+            answer = Math.abs(num1 - num2);
+            break;
+          case "Multiplication":
+            question = `${num1} × ${num2}`;
+            answer = num1 * num2;
+            break;
+          case "Division":
+            const dividend = num1 * num2;
+            question = `${dividend} ÷ ${num2}`;
+            answer = num1;
+            break;
+        }
+        questions.push({ question, answer });
+      }
+    }
+
+    function showQuestion() {
+      if (currentQuestion < questions.length) {
+        document.getElementById("question").textContent = questions[currentQuestion].question;
+        document.getElementById("answer").value = "";
+      } else {
+        endGame();
+      }
+    }
+
+    function submitAnswer() {
+      const userAnswer = parseInt(document.getElementById("answer").value);
+      if (userAnswer === questions[currentQuestion].answer) {
+        score += 10;
+      }
+      currentQuestion++;
+      showQuestion();
+    }
+
+    function endGame() {
+      clearInterval(timerInterval);
+      document.querySelector(".quiz-section").style.display = "none";
+      document.querySelector(".score-section").style.display = "block";
+      document.getElementById("final-score").textContent = score;
+      updateShareLinks();
+    }
+
+    function saveScore() {
+      const playerName = document.getElementById("player-name").value.trim();
+      if (!playerName) return;
+
+      const leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
+      leaderboard.push({ name: playerName, score });
+      leaderboard.sort((a, b) => b.score - a.score);
+      localStorage.setItem("leaderboard", JSON.stringify(leaderboard.slice(0, 10)));
+      showLeaderboard();
+    }
+
+    function showLeaderboard() {
+      document.querySelector(".home-section").style.display = "none";
+      document.querySelector(".score-section").style.display = "none";
+      document.querySelector(".leaderboard-section").style.display = "block";
+      const leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
+      const leaderboardDiv = document.getElementById("leaderboard");
+      leaderboardDiv.innerHTML = leaderboard.map(entry => `<p>${entry.name}: ${entry.score}</p>`).join("");
+    }
+
+    function restartGame() {
+      document.querySelector(".score-section").style.display = "none";
+      document.querySelector(".home-section").style.display = "block";
+    }
+
+    function goHome() {
+      document.querySelector(".leaderboard-section").style.display = "none";
+      document.querySelector(".home-section").style.display = "block";
+    }
+
+    function updateShareLinks() {
+      const scoreText = `I scored ${score} points on the Math Quiz Game! Try to beat my score.`;
+      const encodedText = encodeURIComponent(scoreText);
+      const whatsappLink = `https://api.whatsapp.com/send?text=${encodedText}`;
+      const facebookLink = `https://www.facebook.com/sharer/sharer.php?u=https://yourgameurl.com&quote=${encodedText}`;
+      const instagramLink = `https://www.instagram.com/?url=https://yourgameurl.com`;
+
+      document.getElementById("whatsapp-share").href = whatsappLink;
+      document.getElementById("facebook-share").href = facebookLink;
+      document.getElementById("instagram-share").href = instagramLink;
+    }
+  </script>
+</body>
+</html>
