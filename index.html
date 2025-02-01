@@ -258,9 +258,10 @@
     function updateShareLinks() {
       const scoreText = `I scored ${score} points on the Math Quiz Game! Try to beat my score.`;
       const encodedText = encodeURIComponent(scoreText);
-      const whatsappLink = `https://api.whatsapp.com/send?text=${encodedText}`;
-      const facebookLink = `https://www.facebook.com/sharer/sharer.php?u=https://yourgameurl.com&quote=${encodedText}`;
-      const instagramLink = `https://www.instagram.com/?url=https://yourgameurl.com`;
+      const gameLink = encodeURIComponent("https://yourgameurl.com");
+      const whatsappLink = `https://api.whatsapp.com/send?text=${encodedText}%20Play%20here:%20${gameLink}`;
+      const facebookLink = `https://www.facebook.com/sharer/sharer.php?u=${gameLink}&quote=${encodedText}`;
+      const instagramLink = `https://www.instagram.com/?url=${gameLink}`;
 
       document.getElementById("whatsapp-share").href = whatsappLink;
       document.getElementById("facebook-share").href = facebookLink;
@@ -269,3 +270,4 @@
   </script>
 </body>
 </html>
+
